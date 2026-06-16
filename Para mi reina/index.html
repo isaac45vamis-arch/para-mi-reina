@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Mi Reina Linda 🌌👑</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #010206;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Lienzo para el universo 3D */
+        #galaxyCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* --- TARJETA ULTRA TRANSPARENTE --- */
+        .card {
+            background: rgba(10, 16, 36, 0.35); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 40px 30px;
+            border-radius: 28px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 
+                        inset 0 0 25px rgba(162, 217, 255, 0.05);
+            max-width: 440px;
+            width: 90%;
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            color: white;
+            transition: all 0.5s ease;
+        }
+
+        h1 {
+            color: #a2d9ff;
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            text-shadow: 0 0 15px rgba(162, 217, 255, 0.6);
+        }
+
+        .instruction {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        /* --- CONTENEDOR DE LETRAS REANIMADO --- */
+        .lyrics-container {
+            min-height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            perspective: 1000px; /* Añade profundidad 3D al texto */
+        }
+
+        /* Efecto de impacto y brillo para los versos */
+        .verse {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            font-style: italic;
+            font-weight: 500;
+            display: none;
+            width: 100%;
+            opacity: 0;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 4px 8px rgba(0,0,0,0.7);
+        }
+
+        /* Clase de animación explosiva cuando entra el verso */
+        .verse.active {
+            display: block;
+            animation: impactReveal 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        /* Resaltados dinámicos con degradados neón */
+        .glow-text {
+            background: linear-gradient(45deg, #ff69b4, #ffb6c1, #a2d9ff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            font-size: 1.35rem;
+            text-shadow: none; 
+            display: inline-block;
+            animation: shineText 3s linear infinite;
+        }
+
+        .highlight {
+            color: #ff69b4;
+            font-weight: bold;
+            font-size: 1.4rem;
+            display: block;
+            margin-top: 8px;
+            text-shadow: 0 0 15px rgba(255, 105, 180, 0.8);
+            animation: pulseGlow 2s infinite alternate;
+        }
+
+        /* --- BOTONES --- */
+        .btn-group {
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #a2d9ff 0%, #7ec2ff 100%);
+            color: #040814;
+            border: none;
+            padding: 12px 40px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(162, 217, 255, 0.3);
+        }
+
+        .btn:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-music {
+            background-color: transparent;
+            border: 1px solid rgba(162, 217, 255, 0.4);
+            color: #a2d9ff;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Palabras flotantes */
+        .floating-word {
+            position: absolute;
+            color: rgba(255, 105, 180, 0.7);
+            font-weight: bold;
+            font-style: italic;
+            pointer-events: none;
+            z-index: 2;
+            animation: floatUpWord 4s linear forwards;
+            font-size: 1.1rem;
+            text-shadow: 0 0 8px rgba(255, 105, 180, 0.4);
+        }
+
+        /* --- ANIMACIONES --- */
+        @keyframes impactReveal {
+            0% {
+                opacity: 0;
+                transform: scale(0.7) translateY(30px) rotateX(-20deg);
+                filter: blur(10px);
+            }
+            50% {
+                opacity: 0.8;
+                filter: blur(2px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0) rotateX(0deg);
+                filter: blur(0);
+            }
+        }
+
+        @keyframes shineText {
+            to { background-position: 200% center; }
+        }
+
+        @keyframes pulseGlow {
+            from { transform: scale(1); text-shadow: 0 0 10px rgba(255, 105, 180, 0.6); }
+            to { transform: scale(1.03); text-shadow: 0 0 20px rgba(255, 105, 180, 0.9), 0 0 30px rgba(255, 20, 147, 0.4); }
+        }
+
+        @keyframes floatUpWord {
+            0% { transform: translateY(100vh) scale(0.7); opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="galaxyCanvas"></canvas>
+
+    <div class="card">
+         <div style="text-align: right;">
+            <button class="btn btn-music" id="musicBtn" onclick="toggleMusic()">🎵 Música: Apagada</button>
+         </div>
+
+        <h1>Para ti, mi reina linda 🌌👑</h1>
+        <p class="instruction" id="instruction">Toca abajo para leer lo que siento...</p>
+        
+        <div class="lyrics-container">
+            <p class="verse active" id="v0">
+                Yo sé bien que te voy a <span class="glow-text">adorar toda la vida...</span> 💫
+            </p>
+            <p class="verse" id="v1">
+                Porque tú me ayudaste a calmar mis sufrimientos. En mis sueños, siempre vas a estar, <span class="glow-text">mi reina linda</span>. Este amor nunca terminará, te lo prometo.
+            </p>
+            <p class="verse" id="v2">
+                Y tú llegaste cuando yo más te necesitaba, señalando el camino <span class="glow-text">menos doloroso... ✨</span>
+            </p>
+            <p class="verse" id="v3">
+                Me brindaste lo más tierno que nace del alma. De tu vida, me diste lo más <span class="glow-text">puro y hermoso.</span>
+            </p>
+            <p class="verse" id="v4">
+                Un <span class="glow-text">angelito del cielo</span> me mima, me ama. Una sirena encantada me brinda sus besos... 🧜‍♀️
+            </p>
+            <p class="verse" id="v5">
+                Todo lo vuelve ternura con una palabra. Como por arte de magia, me lleva hasta el <span class="glow-text">cielo.</span>
+            </p>
+            <p class="verse" id="v6">
+                <span class="highlight">Su vida es mi vida...</span>
+                <span class="highlight">Su alma es mi alma...</span>
+                <br>🔒 Te amo para siempre.
+            </p>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn" id="nextBtn" onclick="nextVerse()">Siguiente verso</button>
+        </div>
+    </div>
+
+    <audio id="audioLocal" loop prefetch>
+        <source src="musica.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // --- CONFIGURACIÓN DE THREE.JS ---
+        const canvas = document.getElementById('galaxyCanvas');
+        const scene = new THREE.Scene();
+        
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 4;
+        camera.position.y = 1.2;
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // --- GALAXIA DE PARTICULAS ---
+        const count = 3500;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(count * 3);
+        const colors = new Float32Array(count * 3);
+
+        const colorInside = new THREE.Color('#ff52a0'); 
+        const colorOutside = new THREE.Color('#102a6b'); 
+
+        for(let i = 0; i < count; i++) {
+            const i3 = i * 3;
+            const radius = Math.random() * 5.5;
+            const spinAngle = radius * 1.6;
+            const branchAngle = ((i % 3) * Math.PI * 2) / 3;
+
+            const randomX = (Math.random() - 0.5) * 0.25 * radius;
+            const randomY = (Math.random() - 0.5) * 0.25 * radius;
+            const randomZ = (Math.random() - 0.5) * 0.25 * radius;
+
+            positions[i3]     = Math.cos(branchAngle + spinAngle) * radius + randomX;
+            positions[i3 + 1] = randomY;
+            positions[i3 + 2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
+
+            const mixedColor = colorInside.clone();
+            mixedColor.lerp(colorOutside, radius / 5.5);
+
+            colors[i3]     = mixedColor.r;
+            colors[i3 + 1] = mixedColor.g;
+            colors[i3 + 2] = mixedColor.b;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const material = new THREE.PointsMaterial({
+            size: 0.028,
+            sizeAttenuation: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            vertexColors: true
+        });
+
+        const galaxyPoints = new THREE.Points(geometry, material);
+        scene.add(galaxyPoints);
+
+        // --- CORAZÓN CENTRAL ---
+        const heartShape = new THREE.Shape();
+        heartShape.moveTo(0, 0);
+        heartShape.bezierCurveTo(0, 0.3, 0.3, 0.6, 0.6, 0.6);
+        heartShape.bezierCurveTo(1, 0.6, 1, 0.2, 1, 0);
+        heartShape.bezierCurveTo(1, -0.4, 0.6, -0.7, 0, -1.1);
+        heartShape.bezierCurveTo(-0.6, -0.7, -1, -0.4, -1, 0);
+        heartShape.bezierCurveTo(-1, 0.2, -1, 0.6, -0.6, 0.6);
+        heartShape.bezierCurveTo(-0.3, 0.6, 0, 0.3, 0, 0);
+
+        const extrudeSettings = { depth: 0.2, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.05, bevelThickness: 0.05 };
+        const heartGeometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+        const heartMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0xff2a85, 
+            wireframe: true, 
+            transparent: true,
+            opacity: 0.75
+        });
+        const heartMesh = new THREE.Mesh(heartGeometry, heartMaterial);
+        heartMesh.scale.set(0.38, 0.38, 0.38);
+        heartMesh.position.set(0, 0.2, 0);
+        heartMesh.rotation.z = Math.PI; 
+        scene.add(heartMesh);
+
+        // --- BUCLE DE ANIMACIÓN ---
+        const clock = new THREE.Clock();
+
+        const tick = () => {
+            const elapsedTime = clock.getElapsedTime();
+            galaxyPoints.rotation.y = elapsedTime * 0.12;
+            heartMesh.rotation.y = elapsedTime * 0.5;
+            const pulse = 0.38 + Math.sin(elapsedTime * 3.5) * 0.03;
+            heartMesh.scale.set(pulse, pulse, pulse);
+            renderer.render(scene, camera);
+            window.requestAnimationFrame(tick);
+        };
+        tick();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- SISTEMA DE PALABRAS FLOTANTES ---
+        const palabras = ["Te amo", "Mi reina", "Siempre juntos", "Eres mi vida", "Mi universo", "Te adoro", "Hermosa", "Contigo siempre 🔒", "Mi angelito"];
+
+        function createRomanticWord() {
+            const word = document.createElement('div');
+            word.classList.add('floating-word');
+            word.innerText = palabras[Math.floor(Math.random() * palabras.length)];
+            word.style.left = Math.random() * 85 + 5 + "vw";
+            
+            const duration = 3 + Math.random() * 3;
+            word.style.animationDuration = duration + "s";
+            word.style.fontSize = 0.8 + Math.random() * 0.7 + "rem";
+            word.style.opacity = 0.4 + Math.random() * 0.6;
+
+            document.body.appendChild(word);
+            setTimeout(() => { word.remove(); }, duration * 1000);
+        }
+
+        setInterval(createRomanticWord, 1500);
+
+        // --- MANEJO DE VERSOS Y AUDIO EN UN CLIC ---
+        let currentVerse = 0;
+        const totalVerses = 7;
+        const myAudio = document.getElementById('audioLocal');
+        const musicBtn = document.getElementById('musicBtn');
+        let hasInteracted = false;
+
+        function nextVerse() {
+            if (!hasInteracted) {
+                playAudioFile();
+                hasInteracted = true;
+            }
+
+            // Disparar ráfagas de palabras flotantes al presionar
+            for(let i=0; i<4; i++) {
+                setTimeout(createRomanticWord, i * 150);
+            }
+
+            document.getElementById(`v${currentVerse}`).classList.remove('active');
+            currentVerse++;
+            
+            if (currentVerse < totalVerses) {
+                document.getElementById(`v${currentVerse}`).classList.add('active');
+                document.getElementById('instruction').innerText = "Sigue leyendo... 💖";
+                if (currentVerse === totalVerses - 1) {
+                    document.getElementById('nextBtn').innerText = "Te amo infinitamente";
+                }
+            } else {
+                currentVerse = 0;
+                document.getElementById(`v${currentVerse}`).classList.add('active');
+                document.getElementById('nextBtn').innerText = "Siguiente verso";
+                document.getElementById('instruction').innerText = "Una y otra vez...";
+            }
+        }
+
+        function playAudioFile() {
+            myAudio.volume = 0.7;
+            myAudio.play().then(() => {
+                musicBtn.innerText = "🎵 Música: Sonando...";
+                musicBtn.style.backgroundColor = "#ff2a85";
+                musicBtn.style.borderColor = "#ff2a85";
+                musicBtn.style.color = "#fff";
+            }).catch(err => console.log("Permiso concedido"));
+        }
+
+        function toggleMusic() {
+            if (myAudio.paused) {
+                myAudio.play();
+                musicBtn.innerText = "🎵 Música: Sonando...";
+                musicBtn.style.backgroundColor = "#ff2a85";
+                musicBtn.style.borderColor = "#ff2a85";
+                musicBtn.style.color = "#fff";
+            } else {
+                myAudio.pause();
+                musicBtn.innerText = "🎵 Música: Apagada";
+                musicBtn.style.borderColor = "rgba(162, 217, 255, 0.4)";
+                musicBtn.style.backgroundColor = "transparent";
+                musicBtn.style.color = "#a2d9ff";
+            }
+        }
+    </script>
+</body>
+</html>
